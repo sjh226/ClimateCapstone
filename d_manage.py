@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import math
 import re
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsRegressor
 
 pd.options.mode.chained_assignment = None
 
@@ -96,19 +96,22 @@ def fill_nans(df):
     # df['hourly_visibility'] = df['hourly_visibility'].str.replace('nan',str(mean_vis))\
     #                           .astype(float)
 
-    # try KNN to impute values
-    # https://github.com/chrisalbon/notes_on_data_science_machine_learning_and_artificial_intelligence
-    columns = ['hourly_dry_bulb_temp_f']
+    # use KNN to impute missing values
+    # after each run of the KNN Regressor loop, the imputed column is added
+    # into the valid training columns
+    columns = ['hourly_dry_bulb_temp_f', 'hourly_visibility',\
+               'hourly_wet_bulb_temp_f','hourly_wind_speed',\
+               'hourly_wind_gust_speed','hourly_station_pressure']
     complete_columns = ['hourly_dew_point_temp_f', 'hourly_relative_humidity', \
                         'date']
     for col in columns:
-        KNN = KNeighborsClassifier(weights='distance')
+        KNN = KNeighborsRegressor(weights='distance')
         X = df[df[col].notnull()][complete_columns].values
-        X_pred = df[df[col].isnull()][complete_columns].values
+        X_pred = df[df[col].isnull()][complete_columns]
         y = df[df[col].notnull()].pop(col).values
         KNN.fit(X, y)
-        y_pred = KNN.predict(X_pred)
-        df[col] = df[col].fillna(y_pred)
+        y_pred = KNN.predict(X_pred.values)
+        df[col].fillna(dict(zip(X_pred.index, y_pred)), inplace=True)
         complete_columns.append(col)
 
     # fill precip nans to 0.00
