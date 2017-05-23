@@ -103,15 +103,13 @@ def fill_nans(df):
                         'date']
     for col in columns:
         KNN = KNeighborsClassifier(weights='distance')
-        X = df[df[col].notnull()][complete_columns]
-        print(X.info())
+        X = df[df[col].notnull()][complete_columns].values
         X_pred = df[df[col].isnull()][complete_columns].values
         y = df[df[col].notnull()].pop(col).values
-        X = X.values
         KNN.fit(X, y)
-        print(KNN.predict(X_pred))
-
-
+        y_pred = KNN.predict(X_pred)
+        df[col] = df[col].fillna(y_pred)
+        complete_columns.append(col)
 
     # fill precip nans to 0.00
     # df['hourly_precip'].fillna('0.00', inplace=True)
