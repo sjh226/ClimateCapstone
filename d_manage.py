@@ -46,7 +46,8 @@ def clean_data(dataframe):
                                 'HOURLYDRYBULBTEMPC', 'HOURLYWETBULBTEMPC',\
                                 'HOURLYDewPointTempC', 'HOURLYWindDirection',\
                                 'DAILYMaximumDryBulbTemp', 'DAILYMinimumDryBulbTemp',\
-                                'PeakWindDirection'],\
+                                'PeakWindDirection', 'DAILYSnowDepth',\
+                                'HOURLYSeaLevelPressure', 'DAILYAverageDryBulbTemp'],\
                                 axis=1)
     # possible climate change indicators
     climate_df = dataframe[['MonthlyDeptFromNormalMaximumTemp',\
@@ -59,7 +60,6 @@ def clean_data(dataframe):
                                 'MonthlyDeptFromNormalPrecip'], axis=1)
     # dates
     dataframe['DATE'] = pd.to_datetime(dataframe['DATE'])
-    # date_df = dataframe.pop('DATE')
     # convert camelcase to snakecase for columns
     dataframe.columns = [camel_to_snake(name) for name in dataframe.columns]
     dataframe.columns = ['date', 'hourly_visibility', 'hourly_dry_bulb_temp_f',\
@@ -72,10 +72,9 @@ def clean_type(df):
                'hourly_wet_bulb_temp_f', 'hourly_dew_point_temp_f',\
                'hourly_relative_humidity', 'hourly_wind_speed',\
                'hourly_station_pressure', 'hourly_pressure_change',\
-               'hourly_sea_level_pressure', 'hourly_precip',\
-               'hourly_altimeter_setting', 'daily_average_dry_bulb_temp',\
+               'hourly_precip', 'hourly_altimeter_setting',\
                'daily_dept_from_normal_average_temp', 'daily_precip',\
-               'daily_snowfall', 'daily_snow_depth',\
+               'daily_snowfall',\
                'daily_peak_wind_speed', 'daily_heating_degree_days',\
                'daily_cooling_degree_days', 'date']
     for col in columns:
@@ -96,6 +95,10 @@ def fill_nans(df):
     # df['hourly_visibility'] = df['hourly_visibility'].str.replace('nan',str(mean_vis))\
     #                           .astype(float)
 
+    # fill precip nans to 0.00 (including 'trace' values)
+    df['hourly_precip'].fillna(0.00, inplace=True)
+    df['daily_snowfall'].fillna(0.00, inplace=True)
+
     # use KNN to impute missing values
     # after each run of the KNN Regressor loop, the imputed column is added
     # into the valid training columns
@@ -103,7 +106,7 @@ def fill_nans(df):
                'hourly_wet_bulb_temp_f','hourly_wind_speed',\
                'hourly_wind_gust_speed','hourly_station_pressure']
     complete_columns = ['hourly_dew_point_temp_f', 'hourly_relative_humidity', \
-                        'date']
+                        'date', 'hourly_precip', 'daily_snowfall']
     for col in columns:
         KNN = KNeighborsRegressor(weights='distance')
         X = df[df[col].notnull()][complete_columns].values
@@ -113,9 +116,6 @@ def fill_nans(df):
         y_pred = KNN.predict(X_pred.values)
         df[col].fillna(dict(zip(X_pred.index, y_pred)), inplace=True)
         complete_columns.append(col)
-
-    # fill precip nans to 0.00
-    # df['hourly_precip'].fillna('0.00', inplace=True)
 
     # # use monthly averages to fill nans
     # mean_temps = np.array([])
@@ -131,14 +131,15 @@ def fill_nans(df):
 
     return df
 
+
 if __name__ == '__main__':
     df = pd.read_csv('965113.csv')
     df, climate_df = clean_data(df)
     df = clean_type(df)
 
-    df1 = df[['date','hourly_visibility','hourly_dry_bulb_temp_f',\
-              'hourly_wet_bulb_temp_f','hourly_dew_point_temp_f',\
-              'hourly_relative_humidity','hourly_wind_speed',\
-              'hourly_wind_gust_speed','hourly_station_pressure']].head(1000)
-
+    df1 = df.head(1000)
     df1 = fill_nans(df1)
+
+    df2 = df[df['daily_dept_from_normal_average_temp'].notnull()]\
+            [['date', 'daily_dept_from_normal_average_temp']]
+    plot_departure(df2)
