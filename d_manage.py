@@ -8,8 +8,8 @@ pd.options.mode.chained_assignment = None
 
 
 def camel_to_snake(name):
-    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
-    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+    st = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', st).lower()
 
 def clean_data(dataframe):
     # clean dataframe by dropping meaningless columns or those with <500 values
@@ -50,7 +50,8 @@ def clean_data(dataframe):
                                 'HOURLYSeaLevelPressure', 'DAILYAverageDryBulbTemp'],\
                                 axis=1)
     # possible climate change indicators
-    climate_df = dataframe[['MonthlyDeptFromNormalMaximumTemp',\
+    climate_df = dataframe[['DATE',\
+                            'MonthlyDeptFromNormalMaximumTemp',\
                             'MonthlyDeptFromNormalMinimumTemp',\
                             'MonthlyDeptFromNormalAverageTemp',\
                             'MonthlyDeptFromNormalPrecip']]
@@ -60,10 +61,12 @@ def clean_data(dataframe):
                                 'MonthlyDeptFromNormalPrecip'], axis=1)
     # dates
     dataframe['DATE'] = pd.to_datetime(dataframe['DATE'])
+    climate_df['DATE'] = pd.to_datetime(climate_df['DATE'])
     # convert camelcase to snakecase for columns
     dataframe.columns = [camel_to_snake(name) for name in dataframe.columns]
     dataframe.columns = ['date', 'hourly_visibility', 'hourly_dry_bulb_temp_f',\
                          'hourly_wet_bulb_temp_f'] + list(dataframe.columns[4:])
+    climate_df.columns = [camel_to_snake(name) for name in climate_df.columns]
     return dataframe, climate_df
 
 def clean_type(df):
@@ -142,4 +145,3 @@ if __name__ == '__main__':
 
     df2 = df[df['daily_dept_from_normal_average_temp'].notnull()]\
             [['date', 'daily_dept_from_normal_average_temp']]
-    plot_departure(df2)
