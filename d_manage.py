@@ -47,7 +47,8 @@ def clean_data(dataframe):
                                 'HOURLYDewPointTempC', 'HOURLYWindDirection',\
                                 'DAILYMaximumDryBulbTemp', 'DAILYMinimumDryBulbTemp',\
                                 'PeakWindDirection', 'DAILYSnowDepth',\
-                                'HOURLYSeaLevelPressure', 'DAILYAverageDryBulbTemp'],\
+                                'HOURLYSeaLevelPressure', 'DAILYAverageDryBulbTemp',\
+                                'AltimeterSetting'],\
                                 axis=1)
     # possible climate change indicators
     climate_df = dataframe[['DATE',\
@@ -89,14 +90,7 @@ def fill_nans(df):
     # drop rows with NaN in largest column aside from 'date'
     df = df.dropna(subset=['hourly_relative_humidity'])
     # drop rows with fewer than 10 non-na values (78% of data)
-    # df = df.dropna(thresh=10)
-    ## fill hourly visibility NaNs with mean
-    # df['hourly_visibility'].loc[:] = df['hourly_visibility'].astype(str)\
-    #                                  .str.rstrip('sV').replace('*', 'nan')
-    # mean_vis = np.mean(df[df['hourly_visibility'] != 'nan']['hourly_visibility']\
-    #            .astype(float))
-    # df['hourly_visibility'] = df['hourly_visibility'].str.replace('nan',str(mean_vis))\
-    #                           .astype(float)
+    df = df.dropna(thresh=10)
 
     # fill precip nans to 0.00 (including 'trace' values)
     df['hourly_precip'].fillna(0.00, inplace=True)
