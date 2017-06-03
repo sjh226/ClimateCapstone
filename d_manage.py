@@ -48,7 +48,7 @@ def clean_data(dataframe):
                                 'DAILYMaximumDryBulbTemp', 'DAILYMinimumDryBulbTemp',\
                                 'PeakWindDirection', 'DAILYSnowDepth',\
                                 'HOURLYSeaLevelPressure', 'DAILYAverageDryBulbTemp',\
-                                'AltimeterSetting'],\
+                                'HOURLYAltimeterSetting'],\
                                 axis=1)
     # possible climate change indicators
     climate_df = dataframe[['DATE',\
@@ -76,7 +76,7 @@ def clean_type(df):
                'hourly_wet_bulb_temp_f', 'hourly_dew_point_temp_f',\
                'hourly_relative_humidity', 'hourly_wind_speed',\
                'hourly_station_pressure', 'hourly_pressure_change',\
-               'hourly_precip', 'hourly_altimeter_setting',\
+               'hourly_precip',\
                'daily_dept_from_normal_average_temp', 'daily_precip',\
                'daily_snowfall',\
                'daily_peak_wind_speed', 'daily_heating_degree_days',\
@@ -135,7 +135,7 @@ if __name__ == '__main__':
     df = clean_type(df)
 
     df1 = df.head(1000)
-    df1 = fill_nans(df1)
+    df = fill_nans(df)
 
     df2 = df[df['daily_dept_from_normal_average_temp'].notnull()]\
             [['date', 'daily_dept_from_normal_average_temp']]
