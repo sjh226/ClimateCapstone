@@ -3,7 +3,10 @@ import numpy as np
 import math
 import re
 from sklearn.neighbors import KNeighborsRegressor
+import pickle
+import boto3
 
+s3 = boto3.client('s3')
 pd.options.mode.chained_assignment = None
 
 
@@ -113,7 +116,7 @@ def fill_nans(df):
     columns = ['hourly_wind_gust_speed', 'hourly_relative_humidity',\
                'hourly_dry_bulb_temp_f', 'hourly_wind_speed',\
                'hourly_visibility', 'hourly_wet_bulb_temp_f',\
-               'hourly_station_pressure', 'hourly_pressure_tendancy',\
+               'hourly_station_pressure', 'hourly_pressure_tendency',\
                'hourly_pressure_change', 'daily_heating_degree_days',\
                'daily_cooling_degree_days']
     complete_columns = ['date', 'hourly_precip', 'daily_snowfall']
@@ -143,7 +146,6 @@ def to_bucket(f, bucket, write_name):
     data = open(f, 'rb')
     # s3.create_bucket(Bucket=bucket)
     s3.Bucket(bucket).put_object(Key=write_name, Body=data)
-    print('Success! {} added to {} bucket'.format(write_name, bucket))
 
 def make_bucket(bucket_name):
     s3 = boto3.resource('s3')
@@ -151,13 +153,21 @@ def make_bucket(bucket_name):
 
 
 if __name__ == '__main__':
-    # df = pd.read_csv('965113.csv')
-    make_bucket('climate_data')
-    to_bucket('965113.csv', 'climate_data', '20yr.csv')
-    df = pd.read_csv('https://s3.amazonaws.com/climate_data/20yr.csv')
+    ## merge 3 dataframes to span 40 years of weather observations
+    # df1 = pd.read_csv('965113.csv')
+    # df2 = pd.read_csv('984328.csv')
+    # df3 = pd.read_csv('984333.csv')
+    # df = pd.concat([df1, df2, df3], ignore_index=True)
+    # df.to_csv('40yr.csv')
 
-    df, climate_df = clean_data(df)
-    df = clean_type(df)
+    ## write to and read from s3 bucket
+    # make_bucket('climate_data')
+    # to_bucket('40yr.csv', 'climate_data', '40yr.csv')
+    obj = s3.get_object(Bucket='climate_data', Key='40yr.csv')
+    df = pd.read_csv(obj['Body'])
 
-    df1 = df.head(1000)
-    df = fill_nans(df)
+
+    # df, climate_df = clean_data(df)
+    # df = clean_type(df)
+    #
+    # df = fill_nans(df)
