@@ -81,8 +81,9 @@ def clean_data(dataframe):
     climate_df['DATE'] = pd.to_datetime(climate_df['DATE'])
     # convert camelcase to snakecase for columns
     dataframe.columns = [camel_to_snake(name) for name in dataframe.columns]
-    dataframe.columns = ['date', 'hourly_visibility', 'hourly_dry_bulb_temp_f',\
-                         'hourly_wet_bulb_temp_f'] + list(dataframe.columns[4:])
+    dataframe.columns = ['index', 'date', 'hourly_visibility',\
+                         'hourly_dry_bulb_temp_f', 'hourly_wet_bulb_temp_f']\
+                         + list(dataframe.columns[5:])
     climate_df.columns = [camel_to_snake(name) for name in climate_df.columns]
     return dataframe, climate_df
 
@@ -102,6 +103,7 @@ def clean_type(df):
 
 def fill_nans(df):
     # drop rows with fewer than 8 non-na values (81% of data)
+    df.drop(['index'], axis=1, inplace=True)
     df = df.dropna(thresh=8)
 
     # fill precip nans to 0.00 (including 'trace' values)
@@ -113,12 +115,12 @@ def fill_nans(df):
     # use KNN to impute missing values
     # after each run of the KNN Regressor loop, the imputed column is added
     # into the valid training columns
-    columns = ['hourly_wind_gust_speed', 'hourly_relative_humidity',\
-               'hourly_dry_bulb_temp_f', 'hourly_wind_speed',\
-               'hourly_visibility', 'hourly_wet_bulb_temp_f',\
-               'hourly_station_pressure', 'hourly_pressure_tendency',\
+    columns = ['hourly_wind_gust_speed', 'hourly_dry_bulb_temp_f',
+               'hourly_relative_humidity', 'hourly_wind_speed',\
+               'hourly_dew_point_temp_f', 'hourly_station_pressure',\
+               'hourly_wet_bulb_temp_f', 'hourly_pressure_tendency',\
                'hourly_pressure_change', 'daily_heating_degree_days',\
-               'daily_cooling_degree_days']
+               'daily_cooling_degree_days', 'hourly_visibility']
     complete_columns = ['date', 'hourly_precip', 'daily_snowfall']
     for col in columns:
         print('Imputing column', col)
@@ -166,8 +168,8 @@ if __name__ == '__main__':
     obj = s3.get_object(Bucket='climate_data', Key='40yr.csv')
     df = pd.read_csv(obj['Body'])
 
+    df, climate_df = clean_data(df)
+    df = clean_type(df)
 
-    # df, climate_df = clean_data(df)
-    # df = clean_type(df)
-    #
-    # df = fill_nans(df)
+    df = fill_nans(df)
+    df.to_pickle('40yr_df.pkl')
