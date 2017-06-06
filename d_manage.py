@@ -121,7 +121,7 @@ def fill_nans(df):
                'hourly_wet_bulb_temp_f', 'hourly_pressure_tendency',\
                'hourly_pressure_change', 'daily_heating_degree_days',\
                'daily_cooling_degree_days', 'hourly_visibility']
-    complete_columns = ['date', 'hourly_precip', 'daily_snowfall']
+    complete_columns = ['hourly_precip', 'daily_snowfall']
     for col in columns:
         print('Imputing column', col)
         KNN = KNeighborsRegressor(weights='distance')
@@ -156,16 +156,16 @@ def make_bucket(bucket_name):
 
 if __name__ == '__main__':
     # merge 4 dataframes to span 40 years of weather observations
-    df1 = pd.read_csv('965113.csv')
-    df2 = pd.read_csv('984328.csv')
-    df3 = pd.read_csv('984333.csv')
-    df3 = pd.read_csv('984333.csv')
-    df = pd.concat([df1, df2, df3, df4], ignore_index=True)
+    df1 = pd.read_csv('data/77-86.csv')
+    df2 = pd.read_csv('data/87-96.csv')
+    df3 = pd.read_csv('data/97-06.csv')
+    df4 = pd.read_csv('data/07-16.csv')
+    df = pd.concat([df1, df2, df3, df4], ignore_index=True).sort_values('DATE')
     df.to_csv('40yr.csv')
 
-    ## write to and read from s3 bucket
+    # # write to and read from s3 bucket
     # make_bucket('climate_data')
-    to_bucket('40yr.csv', 'climate_data', '40yr.csv')
+    # to_bucket('40yr.csv', 'climate_data', '40yr.csv')
     obj = s3.get_object(Bucket='climate_data', Key='40yr.csv')
     df = pd.read_csv(obj['Body'])
 
@@ -174,3 +174,4 @@ if __name__ == '__main__':
 
     df = fill_nans(df)
     df.to_pickle('40yr_df.pkl')
+    to_bucket('40yr_df.pkl', 'climate_data', 'imp_df.pkl')
