@@ -52,23 +52,29 @@ if __name__ == '__main__':
     #                for i in x_pred]
     # y, sigma = np.transpose(predictions)
 
-    # # example plots for exp lin kernel
-    # # Parameters for the expanded exponential kernel
-    # theta = 2.0, 50.0, 0.0, 1.0
-    # # Some sample training points.
-    # xvals = np.random.rand(10) * 2 - 1
-    # # Construct the Gram matrix
-    # C = covariance(exponential_linear_kernel, xvals, xvals, theta)
-    # # Sample from the multivariate normal
-    # y, sigma = np.transpose(predictions)
-    # yvals = np.random.multivariate_normal(np.zeros(len(xvals)), C)
-    # x_pred = np.linspace(-1, 1, 1000)
-    # predictions = [predict(i, xvals, exponential_linear_kernel, theta, C, yvals)
-    #                for i in x_pred]
+    plt.close()
     df = pd.read_pickle('40yr_df.pkl')
+    df = df[df['date'] > '2010-01-01'].iloc[::100, :]
     y = df.pop('hourly_dry_bulb_temp_f').values
     X = df['date'].values
-    kernel = GPy.kern.Matern32(1, variance=10, lengthscale=1.2)
-    model = GPy.models.GPRegression(X=X[:,None], Y=y[:,None],kernel=kernel)
+    # kernel = GPy.kern.Matern32(1, variance=2000, lengthscale=1.2)
+    # kernel = GPy.kern.Linear()
+    kernel = GPy.kern.RBF(input_dim=1, variance=1., lengthscale=1.)
+    model = GPy.models.GPRegression(X=X.reshape(X.shape[0], 1),\
+                                    Y=y.reshape(y.shape[0], 1),kernel=kernel)
+    # # attempting to plot this on my own...
+    # X_test = np.arange('2010', '2016', dtype='datetime64[D]')
+    # X_test = X_test.reshape(X_test.shape[0], 1)
+    # posteriorTestY = model.posterior_samples_f(X_test, full_cov=True, size=3)
+    # simY, simMse = model.predict(X_test)
+    #
+    # plt.plot(X_test, posteriorTestY)
+    # plt.plot(X, y.reshape(y.shape[0], 1), 'ok', markersize=10)
+    # plt.plot(X_test, simY - 3 * simMse ** 0.5, '--g')
+    # plt.plot(X_test, simY + 3 * simMse ** 0.5, '--g')
+
+    # GPy method to plot
     model.optimize()
     model.plot()
+    
+    plt.savefig('gausp.png')
