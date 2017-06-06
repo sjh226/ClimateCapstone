@@ -35,20 +35,24 @@ def lin_reg(X, y):
     print('Score: {}'.format(lr.score(X_test, y_test)))
     return X_test, y_test, lr
 
-def plot_means(df, col, name, file_name):
+def plot_means(df, col, mean, label, name, file_name):
     plt.close()
-    dates = np.arange(1977, 2018)
+    dates = np.arange(1995, 2018)
     data = [df[(df['date'] < '{}-01-01'.format(dates[idx + 1])) & \
                (df['date'] >= '{}-01-01'.format(dates[idx]))][col] \
-               for idx in range(0, 40)]
+               for idx in range(0, 22)]
     heights = [dat.mean() for dat in data]
-    x = np.arange(40)
+    x = np.arange(22)
     plt.bar(x, heights, .7)
+    plt.axhline(mean, x[0], x[-1], c='r', ls='dashed', label='Mean Annual Temp')
     plt.xticks(x, dates[:-1].astype(str), rotation='vertical')
+    plt.ylabel(label)
+    plt.xlabel('Year')
+    plt.legend()
     plt.title('Mean {} in 1-year Periods'.format(name))
     plt.savefig('mean_{}.png'.format(file_name))
 
-def plot_sums(df, col, name, file_name):
+def plot_sums(df, col, mean, label, name, file_name):
     plt.close()
     dates = np.arange(1996, 2018)
     data = [df[(df['date'] < '{}-01-01'.format(dates[idx + 1])) & \
@@ -57,7 +61,11 @@ def plot_sums(df, col, name, file_name):
     heights = [dat.sum() for dat in data]
     x = np.arange(21)
     plt.bar(x, heights, .7)
+    plt.axhline(mean, x[0], x[-1], c='r', ls='dashed', label='Mean Annual Precip')
     plt.xticks(x, dates[:-1].astype(str), rotation='vertical')
+    plt.ylabel(label)
+    plt.xlabel('Year')
+    plt.legend()
     plt.title('Total {} in 1-year Periods'.format(name))
     plt.savefig('total_{}.png'.format(file_name))
 
@@ -82,5 +90,7 @@ if __name__ == '__main__':
     # plot_departure(climate_df, 'date', 'monthly_dept_from_normal_average_temp',\
     #                'Monthly Departure from Avg Temp over Time', 'mo_temp_dep_lr')
 
-    plot_means(df, 'hourly_dry_bulb_temp_f', 'Dry Bulb Temp', 'dbt')
-    # plot_sums(df, 'hourly_precip', 'precipitation', 'precip')
+    plot_means(df, 'hourly_dry_bulb_temp_f', 50.15, 'Mean Annual Temp (F)',\
+               'Dry Bulb Temp', 'dbt')
+    # plot_sums(df, 'hourly_precip', 15.54, 'Total Precip (in)', \
+    #           'precipitation', 'precip')
