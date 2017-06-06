@@ -95,10 +95,10 @@ def clean_type(df):
                'hourly_station_pressure', 'hourly_pressure_change',\
                'hourly_precip',\
                'daily_snowfall', 'daily_heating_degree_days',\
-               'daily_cooling_degree_days', 'date']
+               'daily_cooling_degree_days']
     for col in columns:
         df[col] = pd.to_numeric(df[col], errors='coerce')
-    return df
+    return df.sort_values('date')
 
 
 def fill_nans(df):
@@ -155,16 +155,17 @@ def make_bucket(bucket_name):
 
 
 if __name__ == '__main__':
-    ## merge 3 dataframes to span 40 years of weather observations
-    # df1 = pd.read_csv('965113.csv')
-    # df2 = pd.read_csv('984328.csv')
-    # df3 = pd.read_csv('984333.csv')
-    # df = pd.concat([df1, df2, df3], ignore_index=True)
-    # df.to_csv('40yr.csv')
+    # merge 4 dataframes to span 40 years of weather observations
+    df1 = pd.read_csv('965113.csv')
+    df2 = pd.read_csv('984328.csv')
+    df3 = pd.read_csv('984333.csv')
+    df3 = pd.read_csv('984333.csv')
+    df = pd.concat([df1, df2, df3, df4], ignore_index=True)
+    df.to_csv('40yr.csv')
 
     ## write to and read from s3 bucket
     # make_bucket('climate_data')
-    # to_bucket('40yr.csv', 'climate_data', '40yr.csv')
+    to_bucket('40yr.csv', 'climate_data', '40yr.csv')
     obj = s3.get_object(Bucket='climate_data', Key='40yr.csv')
     df = pd.read_csv(obj['Body'])
 
