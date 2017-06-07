@@ -25,7 +25,7 @@ def gaus_p(X_train, X_test, y_train, y_test=None):
     # print('Using parameters...\nRBF ls: {}, Sine ls: {}, period: {}'\
     #       .format(rbf_ls, ess_ls, perio))
     # print('Score of GPR: {}'.format(gpr.score(X_tes, y_test)))
-    # plot_pred(gpr, 'Gaussian Process Predictions', 'gpr_predict', X_trs, y_train)
+    plot_pred(gpr, 'Gaussian Process Predictions', 'gpr_predict', X_trs, y_train, future=X_tes)
     return gpr, y_pred
 
 def plot_pred(model, model_name, fig_name, X_test, y_test, future=None):
@@ -38,13 +38,22 @@ def plot_pred(model, model_name, fig_name, X_test, y_test, future=None):
     plt.xlabel('Time')
     plt.ylabel('Temperature (F)')
     plt.tick_params(axis='x', which='both', bottom='off', top='off', labelbottom='off')
-    if future:
-        y_fut, std = model.predict(future)
+    if future.any():
+        y_fut, std = model.predict(future, return_std=True)
         plt.plot(future, y_fut)
-        plt.fill_between(X_[:, 0], y_pred - y_std, y_pred + y_std,
-                         alpha=0.5, color='k')
-        plt.xlim(X_test.min(), future.max())
-        plt.tight_layout()
+        x = np.arange(len(y_fut))
+        
+        plt.plot(x, y_fut, 'b-', label='Prediction')
+        plt.fill(np.concatenate([x, x[::-1]]),
+                 np.concatenate([y_fut - 1.9600 * std,
+                                (y_fut + 1.9600 * std)[::-1]]),
+                 alpha=.5, fc='b', ec='None', label='95% confidence interval')
+
+
+        # plt.plot(future, y_fut)
+        # plt.fill_between(future[:, 0], y_fut - std, y_fut + std,\
+        #                  alpha=0.5, color='k')
+        # plt.xlim(X_test.min(), future.max())
     plt.legend()
     plt.savefig('{}.png'.format(fig_name))
 
@@ -63,7 +72,7 @@ if __name__ == '__main__':
     y_train = train_df['hourly_dry_bulb_temp_f'].values.reshape(-1, 1)
     y_test = test_df['hourly_dry_bulb_temp_f'].values.reshape(-1, 1)
 
-    gpr, y_pred = gaus_p(X_train, X_test, y_train, y_test)
+    # gpr, y_pred = gaus_p(X_train, X_test, y_train, y_test)
 
     all_X = df['date'].values.reshape(-1, 1)
     all_y = df['hourly_dry_bulb_temp_f'].values.reshape(-1, 1)
@@ -75,6 +84,7 @@ if __name__ == '__main__':
                          '2020-06-01', '2021-01-01',\
                          '2021-06-01', '2022-01-01',\
                          '2022-06-01', '2023-01-01',], dtype='datetime64'))
-    predicts = pd.to_numeric(predicts[0].values)/1000000000000000000
+    predicts = (pd.to_numeric(predicts[0].values)/1000000000000000000)\
+                .reshape(-1, 1)
 
     gpr, y_pred = gaus_p(all_X, predicts, all_y)
