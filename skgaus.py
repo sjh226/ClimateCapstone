@@ -7,47 +7,55 @@ from sklearn.gaussian_process.kernels \
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
 
-def gaus_p(X_train, X_test, y_train, y_test=None):
+
+def gaus_p(X_train, X_test, y_train, y_test):
     scaler = preprocessing.StandardScaler()
-    X_trs = scaler.fit_transform(X_train)
+    scaler.fit(X_train)
+    X_trs = scaler.transform(X_train)
     X_tes = scaler.transform(X_test)
+    X_trs = X_train
+    X_tes = X_test
     # combine square exponential with periodic to create locally periodic
     # kernel
     rbf_ls = 70
     ess_ls = 10
-    perio = 1
-    kernel = RBF(length_scale=rbf_ls) * ExpSineSquared(length_scale=ess_ls, periodicity=perio)
+    per = 1
+    kernel = RBF(length_scale=rbf_ls) * ExpSineSquared(length_scale=ess_ls, periodicity=per)
     gpr = GaussianProcessRegressor(alpha=1.2, \
                                    kernel=kernel, \
                                    normalize_y=True)
-    gpr = gpr.fit(X_trs, y_train)
-    y_pred = gpr.predict(X_tes)
-    # print('Using parameters...\nRBF ls: {}, Sine ls: {}, period: {}'\
-    #       .format(rbf_ls, ess_ls, perio))
-    # print('Score of GPR: {}'.format(gpr.score(X_tes, y_test)))
-    plot_pred(gpr, 'Gaussian Process Predictions', 'gpr_predict', X_trs, y_train, future=X_tes)
+    gpr.fit(X_trs, y_train)
+
+    y_pred, std = gpr.predict(np.vstack((X_trs, X_tes)), return_std=True)
+
+    print('Using parameters...\nRBF ls: {}, Sine ls: {}, period: {}'\
+          .format(rbf_ls, ess_ls, per))
+    print('Score of GPR: {}'.format(gpr.score(X_tes, y_test)))
+
+    plot_pred(gpr, 'Gaussian Process', 'predict', X_trs, y_train, X_tes)
+
     return gpr, y_pred
 
-def plot_pred(model, model_name, fig_name, X_test, y_test, future=None):
+def plot_pred(model, model_name, fig_name, X_train, y_train, X_test):
     plt.close()
     x = np.arange(len(y_test))
-    y_pred = model.predict(X_test)
-    plt.scatter(x, y_test, c='k', label='Test Data', s=5, alpha=0.7)
-    plt.scatter(x, y_pred, c='r', label='Predictions', s=5, alpha=0.7)
+    y_pred = model.predict(X_train)
+
+    # plot data
+    plt.scatter(X_train, y_train, c='k', label='Test Data', s=5, alpha=0.7)
+    plt.scatter(X_train, y_pred, c='r', label='Predictions', s=5, alpha=0.7)
     plt.title('{} Climate Predictions'.format(model_name))
     plt.xlabel('Time')
     plt.ylabel('Temperature (F)')
     plt.tick_params(axis='x', which='both', bottom='off', top='off', labelbottom='off')
-    if future.any():
-        y_fut, std = model.predict(future, return_std=True)
-        plt.plot(future, y_fut)
-        x = np.arange(len(y_fut))
-        
-        plt.plot(x, y_fut, 'b-', label='Prediction')
-        plt.fill(np.concatenate([x, x[::-1]]),
-                 np.concatenate([y_fut - 1.9600 * std,
-                                (y_fut + 1.9600 * std)[::-1]]),
-                 alpha=.5, fc='b', ec='None', label='95% confidence interval')
+
+    # plot prediction as regression
+    y_pred, std = model.predict(X_test, return_std=True)
+    plt.plot(X_test, y_pred, 'b-', label='Prediction')
+    # plt.fill(np.concatenate([x, x[::-1]]),
+    #          np.concatenate([y_fut - 1.9600 * std,
+    #                         (y_fut + 1.9600 * std)[::-1]]),
+    #          alpha=.5, fc='b', ec='None', label='95% confidence interval')
 
 
         # plt.plot(future, y_fut)
@@ -60,8 +68,8 @@ def plot_pred(model, model_name, fig_name, X_test, y_test, future=None):
 
 if __name__ == '__main__':
     df = pd.read_pickle('40yr_df.pkl')
-    df = df[df['date'] > '2005']
     df = df.iloc[::100, :]
+    df = df[df['date'] > '2005']
     train_df = df.loc[df['date'] < '2014']
     test_df = df.loc[df['date'] >= '2014']
     for data in [train_df, test_df]:
@@ -72,19 +80,22 @@ if __name__ == '__main__':
     y_train = train_df['hourly_dry_bulb_temp_f'].values.reshape(-1, 1)
     y_test = test_df['hourly_dry_bulb_temp_f'].values.reshape(-1, 1)
 
-    # gpr, y_pred = gaus_p(X_train, X_test, y_train, y_test)
+    gpr, y_pred = gaus_p(X_train, X_test, y_train, y_test)
 
-    all_X = df['date'].values.reshape(-1, 1)
-    all_y = df['hourly_dry_bulb_temp_f'].values.reshape(-1, 1)
-
-    predicts = pd.DataFrame(\
-                np.array(['2017-06-01', '2018-01-01',\
-                         '2018-06-01', '2019-01-01',\
-                         '2019-06-01', '2020-01-01',\
-                         '2020-06-01', '2021-01-01',\
-                         '2021-06-01', '2022-01-01',\
-                         '2022-06-01', '2023-01-01',], dtype='datetime64'))
-    predicts = (pd.to_numeric(predicts[0].values)/1000000000000000000)\
-                .reshape(-1, 1)
-
-    gpr, y_pred = gaus_p(all_X, predicts, all_y)
+    # all_X = df['date'].values.reshape(-1, 1)
+    # all_y = df['hourly_dry_bulb_temp_f'].values.reshape(-1, 1)
+    #
+    # predicts = pd.DataFrame(\
+    #             np.array(['2017-06-01', '2018-01-01',\
+    #                      '2018-06-01', '2019-01-01',\
+    #                      '2019-06-01', '2020-01-01',\
+    #                      '2020-06-01', '2021-01-01',\
+    #                      '2021-06-01', '2022-01-01',\
+    #                      '2022-06-01', '2023-01-01',], dtype='datetime64'))
+    # predicts = (pd.to_numeric(predicts[0].values)/1000000000000000000)\
+    #             .reshape(-1, 1)
+    #
+    #
+    # y = df.pop('date').values
+    # X = df.values
+    # gpr = gaus_p(X, y)
