@@ -8,20 +8,26 @@ from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
 
 
-def gaus_p(X_train, X_test, y_train, y_test):
+def gaus_p(X_train, X_test, y_train, y_test=None):
     scaler = preprocessing.StandardScaler()
-    scaler.fit(X_train)
-    X_trs = scaler.transform(X_train)
-    X_tes = scaler.transform(X_test)
+    # scaler.fit(X_train)
+    # X_trs = scaler.transform(X_train)
+    # X_tes = scaler.transform(X_test)
     X_trs = X_train
     X_tes = X_test
     # combine square exponential with periodic to create locally periodic
     # kernel
-    rbf_ls = 70
+    rbf_1 = 250
+    rbf_2 = 70
     ess_ls = 10
-    # 1 year = 0.0318719999999999 before scaled
-    per = .06
-    kernel = RBF(length_scale=rbf_ls) * ExpSineSquared(length_scale=ess_ls, periodicity=per)
+    # 1 year = 0.03187 before scaled
+    per = .03
+    # kernel for general positive trend
+    k1 = RBF(length_scale=rbf_1)
+    # kernel for seasonal periodicity
+    k2 = RBF(length_scale=rbf_2) * ExpSineSquared(length_scale=ess_ls, \
+                                                   periodicity=per)
+    kernel = k1 + k2
     gpr = GaussianProcessRegressor(alpha=.5, \
                                    kernel=kernel, \
                                    normalize_y=True)
@@ -29,53 +35,54 @@ def gaus_p(X_train, X_test, y_train, y_test):
 
     y_pred, std = gpr.predict(X_tes, return_std=True)
 
-    print('Using parameters...\nRBF ls: {}, Sine ls: {}, period: {}'\
-          .format(rbf_ls, ess_ls, per))
-    print('Score of GPR: {}'.format(gpr.score(X_tes, y_test)))
+    if y_test != None:
+        print('Score of GPR: {}'.format(gpr.score(X_tes, y_test)))
 
-    plot_pred(gpr, 'Gaussian Process', 'train_predict', X_trs, y_train, X_tes)
+    plot_pred(gpr, 'Gaussian Process', 'climate_predict', X_trs, y_train, X_tes)
 
     return gpr, y_pred
 
 def plot_pred(model, model_name, fig_name, X_train, y_train, X_test):
     plt.close()
     y_pred = model.predict(X_train)
-    x = np.linspace(X_train.min(), X_train.max(), 50).reshape(-1, 1)
+    x = np.linspace(X_train.min(), np.max(X_test), 100).reshape(-1, 1)
     y = model.predict(x)
+    print(model.predict(np.linspace(X_train.max(), np.max(X_test), 100).reshape(-1, 1)))
 
     # plot data
     plt.scatter(X_train, y_train, c='k', label='Test Data', s=5, alpha=0.7)
-    # plt.scatter(X_train, y_pred, c='r', label='Predictions', s=5, alpha=0.7)
+
+    # plot prediction as regression
     plt.plot(x, y, c='r', label='Prediction', linewidth=2)
+
+    # x_pred = np.linspace(X_train.max(), np.max(X_test), 100).reshape(-1, 1)
+    # y_pred, std = model.predict(x_pred, return_std=True)
+    # plt.plot(x_pred, y_pred, c='r', linewidth=2)
+    # # x_pred = np.linspace(X_train.max(), np.max(X_test), 1000).reshape(-1, 1)
+    # # y_pred, std = model.predict(x_pred, return_std=True)
+    # # plt.fill(np.concatenate([x_pred, x_pred[::-1]]),
+    # #          np.concatenate([y_pred - 1.9600 * std,
+    # #                         (y_pred + 1.9600 * std)[::-1]]),
+    # #          alpha=.3, fc='b', ec='None', label='95% confidence interval')
+    #
+    # plt.fill_between(x_pred, y_pred - std, y_pred + std,\
+    #                  alpha=0.5, color='k')
+
     plt.title('{} Climate Predictions'.format(model_name))
     plt.xlabel('Time')
     plt.ylabel('Temperature (F)')
     plt.tick_params(axis='x', which='both', bottom='off', top='off', labelbottom='off')
-
-    # plot prediction as regression
-    y_pred, std = model.predict(X_test, return_std=True)
-    # plt.plot(X_test, y_pred, 'b-', label='Prediction')
-    # plt.fill(np.concatenate([x, x[::-1]]),
-    #          np.concatenate([y_fut - 1.9600 * std,
-    #                         (y_fut + 1.9600 * std)[::-1]]),
-    #          alpha=.5, fc='b', ec='None', label='95% confidence interval')
-
-
-        # plt.plot(future, y_fut)
-        # plt.fill_between(future[:, 0], y_fut - std, y_fut + std,\
-        #                  alpha=0.5, color='k')
-        # plt.xlim(X_test.min(), future.max())
-    plt.legend()
+    # plt.legend()
     plt.savefig('images/{}.png'.format(fig_name))
 
 
 if __name__ == '__main__':
     df = pd.read_pickle('40yr_df.pkl')
-    # # work with 100th of the data for simplicity
-    # df = df.iloc[::100, :]
-    # # start with dates over 2005, predict on dates past 2014
-    # # this is the most populated, clean data
-    # df = df[df['date'] > '2005']
+    # work with 100th of the data for simplicity
+    df = df.iloc[::100, :]
+    # start with dates over 2005, predict on dates past 2014
+    # this is the most populated, clean data
+    df = df[df['date'] > '1995']
     train_df = df.loc[df['date'] < '2014']
     test_df = df.loc[df['date'] >= '2014']
     # convert datetime to seconds since epoch *e19
@@ -87,35 +94,20 @@ if __name__ == '__main__':
     y_train = train_df['hourly_dry_bulb_temp_f'].values.reshape(-1, 1)
     y_test = test_df['hourly_dry_bulb_temp_f'].values.reshape(-1, 1)
 
-    gpr, y_pred = gaus_p(X_train, X_test, y_train, y_test)
+    # gpr, y_pred = gaus_p(X_train, X_test, y_train, y_test)
 
-    # all_X = df['date'].values.reshape(-1, 1)
-    # all_y = df['hourly_dry_bulb_temp_f'].values.reshape(-1, 1)
-    #
-    # predicts = pd.DataFrame(\
-    #             np.array(['2017-06-01', '2018-01-01',\
-    #                      '2018-06-01', '2019-01-01',\
-    #                      '2019-06-01', '2020-01-01',\
-    #                      '2020-06-01', '2021-01-01',\
-    #                      '2021-06-01', '2022-01-01',\
-    #                      '2022-06-01', '2023-01-01',], dtype='datetime64'))
-    # predicts = (pd.to_numeric(predicts[0].values)/1000000000000000000)\
-    #             .reshape(-1, 1)
-    #
-    #
-    # y = df.pop('date').values
-    # X = df.values
-    # gpr = gaus_p(X, y)
+    df['date_epoch'] = pd.to_numeric(df['date'], errors='coerce')/1000000000000000000
+    all_X = df['date_epoch'].values.reshape(-1, 1)
+    all_y = df['hourly_dry_bulb_temp_f'].values.reshape(-1, 1)
 
-    # Using parameters...
-    # RBF ls: 70, Sine ls: 10, period: 0.03187
-    # Score of GPR: 0.09899526306773943
+    predicts = pd.DataFrame(\
+                np.array(['2018-01-01'], dtype='datetime64'))
+    predicts = (pd.to_numeric(predicts[0].values)/1000000000000000000)\
+                .reshape(-1, 1)
+
+    gpr, y_pred = gaus_p(all_X, predicts, all_y)
+
     # Using parameters...
     # RBF ls: 70, Sine ls: 10, period: 0.03
+    # On data since 2005
     # Score of GPR: 0.4582533725449096
-    # Using parameters...
-    # RBF ls: 70, Sine ls: 10, period: 0.028
-    # Score of GPR: -0.0006649612647204872
-    # Using parameters...
-    # RBF ls: 70, Sine ls: 10, period: 0.015
-    # Score of GPR: -0.0006649612647204872
