@@ -19,31 +19,34 @@ def gaus_p(X_train, X_test, y_train, y_test):
     # kernel
     rbf_ls = 70
     ess_ls = 10
-    per = 1
+    # 1 year = 0.0318719999999999 before scaled
+    per = .03
     kernel = RBF(length_scale=rbf_ls) * ExpSineSquared(length_scale=ess_ls, periodicity=per)
-    gpr = GaussianProcessRegressor(alpha=1.2, \
+    gpr = GaussianProcessRegressor(alpha=.5, \
                                    kernel=kernel, \
                                    normalize_y=True)
     gpr.fit(X_trs, y_train)
 
-    y_pred, std = gpr.predict(np.vstack((X_trs, X_tes)), return_std=True)
+    y_pred, std = gpr.predict(X_tes, return_std=True)
 
     print('Using parameters...\nRBF ls: {}, Sine ls: {}, period: {}'\
           .format(rbf_ls, ess_ls, per))
     print('Score of GPR: {}'.format(gpr.score(X_tes, y_test)))
 
-    plot_pred(gpr, 'Gaussian Process', 'predict', X_trs, y_train, X_tes)
+    plot_pred(gpr, 'Gaussian Process', 'train_predict', X_trs, y_train, X_tes)
 
     return gpr, y_pred
 
 def plot_pred(model, model_name, fig_name, X_train, y_train, X_test):
     plt.close()
-    x = np.arange(len(y_test))
     y_pred = model.predict(X_train)
+    x = np.linspace(X_train.min(), X_train.max(), 50).reshape(-1, 1)
+    y = model.predict(x)
 
     # plot data
     plt.scatter(X_train, y_train, c='k', label='Test Data', s=5, alpha=0.7)
-    plt.scatter(X_train, y_pred, c='r', label='Predictions', s=5, alpha=0.7)
+    # plt.scatter(X_train, y_pred, c='r', label='Predictions', s=5, alpha=0.7)
+    plt.plot(x, y, c='r', label='Prediction', linewidth=2)
     plt.title('{} Climate Predictions'.format(model_name))
     plt.xlabel('Time')
     plt.ylabel('Temperature (F)')
@@ -51,7 +54,7 @@ def plot_pred(model, model_name, fig_name, X_train, y_train, X_test):
 
     # plot prediction as regression
     y_pred, std = model.predict(X_test, return_std=True)
-    plt.plot(X_test, y_pred, 'b-', label='Prediction')
+    # plt.plot(X_test, y_pred, 'b-', label='Prediction')
     # plt.fill(np.concatenate([x, x[::-1]]),
     #          np.concatenate([y_fut - 1.9600 * std,
     #                         (y_fut + 1.9600 * std)[::-1]]),
