@@ -1,6 +1,9 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels \
+    import RBF, WhiteKernel, RationalQuadratic, ExpSineSquared
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
 
@@ -35,7 +38,7 @@ def gaus_p(X_train, X_test, y_train, y_test=None):
     if y_test != None:
         print('Score of GPR: {}'.format(gpr.score(X_tes, y_test)))
 
-    plot_pred(gpr, 'Gaussian Process', 'train_predict', X_trs, y_train, X_tes)
+    plot_pred(gpr, 'Gaussian Process', '2007_p', X_trs, y_train, X_tes)
 
     return gpr, y_pred
 
