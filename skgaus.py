@@ -20,7 +20,7 @@ def gaus_p(X_train, X_test, y_train, y_test):
     rbf_ls = 70
     ess_ls = 10
     # 1 year = 0.0318719999999999 before scaled
-    per = .03
+    per = .06
     kernel = RBF(length_scale=rbf_ls) * ExpSineSquared(length_scale=ess_ls, periodicity=per)
     gpr = GaussianProcessRegressor(alpha=.5, \
                                    kernel=kernel, \
@@ -66,18 +66,22 @@ def plot_pred(model, model_name, fig_name, X_train, y_train, X_test):
         #                  alpha=0.5, color='k')
         # plt.xlim(X_test.min(), future.max())
     plt.legend()
-    plt.savefig('{}.png'.format(fig_name))
+    plt.savefig('images/{}.png'.format(fig_name))
 
 
 if __name__ == '__main__':
     df = pd.read_pickle('40yr_df.pkl')
-    df = df.iloc[::100, :]
-    df = df[df['date'] > '2005']
+    # # work with 100th of the data for simplicity
+    # df = df.iloc[::100, :]
+    # # start with dates over 2005, predict on dates past 2014
+    # # this is the most populated, clean data
+    # df = df[df['date'] > '2005']
     train_df = df.loc[df['date'] < '2014']
     test_df = df.loc[df['date'] >= '2014']
+    # convert datetime to seconds since epoch *e19
     for data in [train_df, test_df]:
         data['date'] = pd.to_numeric(data['date'], errors='coerce')/1000000000000000000
-
+    # manual train/test split based on year
     X_train = train_df['date'].values.reshape(-1, 1)
     X_test = test_df['date'].values.reshape(-1, 1)
     y_train = train_df['hourly_dry_bulb_temp_f'].values.reshape(-1, 1)
@@ -102,3 +106,16 @@ if __name__ == '__main__':
     # y = df.pop('date').values
     # X = df.values
     # gpr = gaus_p(X, y)
+
+    # Using parameters...
+    # RBF ls: 70, Sine ls: 10, period: 0.03187
+    # Score of GPR: 0.09899526306773943
+    # Using parameters...
+    # RBF ls: 70, Sine ls: 10, period: 0.03
+    # Score of GPR: 0.4582533725449096
+    # Using parameters...
+    # RBF ls: 70, Sine ls: 10, period: 0.028
+    # Score of GPR: -0.0006649612647204872
+    # Using parameters...
+    # RBF ls: 70, Sine ls: 10, period: 0.015
+    # Score of GPR: -0.0006649612647204872
