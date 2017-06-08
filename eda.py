@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
-from d_manage import clean_data, clean_type, fill_nans
+from data_cleaning import clean_data, clean_type, fill_nans
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 import boto3

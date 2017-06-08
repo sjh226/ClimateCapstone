@@ -56,11 +56,12 @@ if __name__ == '__main__':
     df = pd.read_pickle('40yr_df.pkl')
     df = df[df['date'] > '2010-01-01'].iloc[::100, :]
     y = df.pop('hourly_dry_bulb_temp_f').values
-    X = df['date'].values
+    df.pop('date')
+    X = df.values
     # kernel = GPy.kern.Matern32(1, variance=2000, lengthscale=1.2)
     # kernel = GPy.kern.Linear()
-    kernel = GPy.kern.RBF(input_dim=1, variance=1., lengthscale=1.)
-    model = GPy.models.GPRegression(X=X.reshape(X.shape[0], 1),\
+    kernel = GPy.kern.RBF(input_dim=1, variance=1500, lengthscale=.01)
+    model = GPy.models.GPRegression(X=X,\
                                     Y=y.reshape(y.shape[0], 1),kernel=kernel)
     # # attempting to plot this on my own...
     # X_test = np.arange('2010', '2016', dtype='datetime64[D]')
@@ -74,7 +75,22 @@ if __name__ == '__main__':
     # plt.plot(X_test, simY + 3 * simMse ** 0.5, '--g')
 
     # GPy method to plot
-    model.optimize()
-    model.plot()
-    
+    # model.optimize()
+    # model.plot()
+
+    s2 = 11
+    #K(x*,x*)
+    K_ss = np.asmatrix(kernel.K(grid,grid))
+    #K(x*,x)
+    K_xs = np.asmatrix(kernel.K(X[:, None],grid))
+
+    mean_f_fitted  = K_xs.T*np.linalg.inv(K_xx+s2*np.eye(100))*Y[:,None]
+    cov_f_fitted = K_ss + s2- K_xs.T*np.linalg.inv(K_xx+s2*np.eye(100))*K_xs+s2
+    rv_posterior_fitted = sp.random.multivariate_normal(size = 200,
+                                                    mean = np.asarray(mean_f_fitted)[:,0],
+                                                    cov = cov_f_fitted)
+    plt.plot(X,Y,"bo")
+    for draw in rv_posterior_fitted:
+        plt.plot(grid, draw, "r-", alpha=.1)
+
     plt.savefig('gausp.png')
