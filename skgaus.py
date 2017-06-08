@@ -38,7 +38,7 @@ def gaus_p(X_train, X_test, y_train, y_test=None):
     if y_test != None:
         print('Score of GPR: {}'.format(gpr.score(X_tes, y_test)))
 
-    plot_pred(gpr, 'Gaussian Process', '2007_p', X_trs, y_train, X_tes)
+    plot_pred(gpr, 'Gaussian Process', 'pred_test', X_trs, y_train, X_tes)
 
     return gpr, y_pred
 
@@ -70,7 +70,7 @@ def plot_pred(model, model_name, fig_name, X_train, y_train, X_test):
     plt.title('{} Climate Predictions'.format(model_name))
     plt.xlabel('Time')
     plt.ylabel('Temperature (F)')
-    plt.tick_params(axis='x', which='both', bottom='off', top='off', labelbottom='off')
+    # plt.tick_params(axis='x', which='both', bottom='off', top='off', labelbottom='off')
     # plt.legend()
     plt.savefig('images/{}.png'.format(fig_name))
 
