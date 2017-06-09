@@ -6,6 +6,7 @@ from sklearn.gaussian_process.kernels \
     import RBF, WhiteKernel, RationalQuadratic, ExpSineSquared
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
+import datetime
 
 
 def gaus_p(X_train, X_test, y_train, y_test=None):
@@ -66,7 +67,11 @@ def plot_pred(model, model_name, fig_name, X_train, y_train, X_test):
     #
     # plt.fill_between(x_pred, y_pred - std, y_pred + std,\
     #                  alpha=0.5, color='k')
-
+    labels = np.arange('2007', '2017', dtype='datetime64[D]')
+    # base = datetime.datetime(2007, 1, 1)
+    # labels = np.array([base + datetime.timedelta(weeks=i) for i in range(10*52)])
+    plt.xticks(x, labels, rotation='vertical')
+    plt.locator_params(axis='x', nticks=10)
     plt.title('{} Climate Predictions'.format(model_name))
     plt.xlabel('Time')
     plt.ylabel('Temperature (F)')
