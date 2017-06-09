@@ -13,4 +13,4 @@ If there is not evident climate change, I should still be able to express how I 
 
 #### A/B Testing
 
-I initially conducted a simple hypothesis test on the data to reject the null hypothesis that the climate has not changed significantly in this time period. I split the data into two 20-year periods (1977-1997 and 1997-2017). When analyzing hourly dry-bulb temperatures this split resulted in a p-value of 1.72e-56, allowing me to conclude that the temperature has in fact changed significantly. 
+I initially conducted a simple hypothesis test on the data to reject the null hypothesis that the climate has not changed significantly in this time period. I split the data into two 20-year periods (1977-1997 and 1997-2017). When analyzing hourly dry-bulb temperatures this split resulted in a p-value of 1.72e-56, allowing me to conclude that the temperature has in fact changed significantly.
