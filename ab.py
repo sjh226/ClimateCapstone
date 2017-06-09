@@ -16,7 +16,7 @@ def hyp_test(df):
 
 
 if __name__ == '__main__':
-    df = pd.read_pickle('40yr_df.pkl').sort_values('date')
+    df = pd.read_pickle('data/40yr_df.pkl').sort_values('date')
     hyp_test(df)
     # this results in a t-value of 15.9 and p-value of 1.72e-56.
     # clearly there is a significant difference between hourly temperatures

@@ -76,7 +76,7 @@ if __name__ == '__main__':
     # df = pd.read_csv('965113.csv')
     df, climate_df = clean_data(df)
     df = clean_type(df)
-    imp_df = pd.read_pickle('40yr_df.pkl').sort_values('date')
+    imp_df = pd.read_pickle('data/40yr_df.pkl').sort_values('date')
 
     # depart_df = climate_df[climate_df['daily_dept_from_normal_average_temp'].notnull()]\
     #               [['date', 'daily_dept_from_normal_average_temp']]

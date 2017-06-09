@@ -1,6 +1,6 @@
 ## Mile High Climate Change: Analyzing and Modeling Climate Change in Denver
-<hr>
 
+![Climate Pic](images/Climate-change-1-1-938x450.jpg)
 
 #### Problem
 
@@ -28,7 +28,7 @@ For ease of computation I decided to focus on the DIA data since 1997. Below I p
 
 #### Gaussian Process Regression
 
-To model this climate data, I chose to implement a [Gaussian Process Regressor](http://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessRegressor.html#sklearn.gaussian_process.GaussianProcessRegressor). This allows me to return probabilities along with my predictions. For each predicted point, I have a confidence interval to illustrate the error in the prediction which is especially useful for timeseries predictions.
+To model this climate data, I chose to implement a [Gaussian Process Regressor](http://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessRegressor.html#sklearn.gaussian_process.GaussianProcessRegressor). This allows me to return probabilities along with my predictions. For each predicted point, I have a confidence interval to illustrate the error in the prediction which is especially useful for timeseries predictions. Much of the variation in my model is based on modeling [CO2 Concentrations at Mauna Loa](http://scikit-learn.org/stable/auto_examples/gaussian_process/plot_gpr_co2.html).
 
 ##### Kernels
 I chose to combine a few kernels to fully account for the signal in the data. A squared exponential kernel was chosen to model the exponential

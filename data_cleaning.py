@@ -173,5 +173,5 @@ if __name__ == '__main__':
     df = clean_type(df)
 
     df = fill_nans(df)
-    df.to_pickle('40yr_df.pkl')
-    to_bucket('40yr_df.pkl', 'climate_data', 'imp_df.pkl')
+    df.to_pickle('data/40yr_df.pkl')
+    to_bucket('data/40yr_df.pkl', 'climate_data', 'imp_df.pkl')
