@@ -6,6 +6,7 @@ from sklearn.gaussian_process.kernels \
     import RBF, WhiteKernel, RationalQuadratic, ExpSineSquared
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
+from sklearn.model_selection import GridSearchCV
 import datetime
 
 
@@ -38,7 +39,7 @@ def gaus_p(X_train, X_test, y_train, y_test=None):
         print('Score of GPR: {}'.format(gpr.score(X_tes, y_test)))
 
     # plot training data and prediction
-    plot_pred(gpr, 'Gaussian Process', '2007_std', X_trs, y_train, X_tes)
+    plot_pred(gpr, 'Gaussian Process', 'prediction_2007', X_trs, y_train, X_tes)
 
     return gpr, y_pred
 
@@ -56,22 +57,22 @@ def plot_pred(model, model_name, fig_name, X_train, y_train, X_test):
     plt.plot(x, y, c='r', label='Prediction', linewidth=1.75)
 
     # plot confidence interval
-    x_pred = np.linspace(X_train.max(), np.max(X_test), 200).reshape(-1, 1)
-    y_pred, std = model.predict(x_pred, return_std=True)
-    plt.fill(np.concatenate([x_pred, x_pred[::-1]]),
-             np.concatenate([y_pred - 1.9600 * std,
-                            (y_pred + 1.9600 * std)[::-1]]),
-             alpha=.3, fc='b', ec='None', label='95% confidence interval')
+    # x_pred = x[np.where(x>X_train.max())]
+    # y_pred = y[np.where(x>X_train.max())]
+    # std = std[np.where(x>X_train.max())]
+    # plt.fill(np.concatenate([x, x[::-1]]),\
+    #          np.concatenate([y - 1.96 * std, (y + 1.96 * std)[::-1]]),\
+    #          alpha=.5, fc='b', ec='None', label='95% confidence interval')
 
-    # plt.fill_between(x_pred, y_pred - std, y_pred + std,\
-    #                  alpha=0.5, color='k')
+    # plt.fill_between(x, y - std * 1.96, y + std * 1.96,\
+    #                  alpha=0.5, color='gray')
 
     plt.title('{} Climate Predictions'.format(model_name))
     plt.xlabel('Time')
     plt.ylabel('Temperature (C)')
     labels = np.arange(2007, 2021, 1)
     plt.xticks(np.linspace(x.min(), x.max(), 14), labels, rotation=45)
-    # plt.legend()
+    plt.legend()
     plt.tight_layout()
     plt.savefig('images/{}.png'.format(fig_name))
 
@@ -107,7 +108,7 @@ if __name__ == '__main__':
     all_y = df['hourly_dry_bulb_temp_f'].values.reshape(-1, 1)
 
     predicts = pd.DataFrame(\
-                np.array(['2021'], dtype='datetime64'))
+                np.array(['2020'], dtype='datetime64'))
     predicts = (pd.to_numeric(predicts[0].values)/1000000000000000000)\
                 .reshape(-1, 1)
 
