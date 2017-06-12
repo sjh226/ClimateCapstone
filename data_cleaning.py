@@ -70,7 +70,7 @@ def clean_data(dataframe):
                             'MonthlyDeptFromNormalAverageTemp',\
                             'MonthlyDeptFromNormalPrecip',\
                             'DAILYDeptFromNormalAverageTemp']]
-    climate_df.dropna(thresh=6, inplace=True)
+    # climate_df.dropna(thresh=6, inplace=True)
     dataframe = dataframe.drop(['MonthlyDeptFromNormalMaximumTemp',\
                                 'MonthlyDeptFromNormalMinimumTemp',\
                                 'MonthlyDeptFromNormalAverageTemp',\

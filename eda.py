@@ -22,17 +22,17 @@ def plot_departure(df, x_col, y_col, title, file_name):
     X_test, y_test, lr = lin_reg(x, y)
     plt.plot(X_test, lr.predict(X_test), color='red', linewidth=1)
     plt.title(title)
-    plt.xlabel('Time since Jan 1, 1977')
-    plt.ylabel('Temperature (F)')
+    plt.xlabel('Time since Jan 1, 1997')
+    plt.ylabel('Temperature (C)')
     plt.tick_params(axis='x', which='both', bottom='off', top='off', labelbottom='off')
-    plt.savefig('{}.png'.format(file_name))
+    plt.savefig('images/{}.png'.format(file_name))
 
 def lin_reg(X, y):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, \
                                                         random_state=13)
     lr = LinearRegression()
     lr.fit(X_train, y_train)
-    print('Score: {}'.format(lr.score(X_test, y_test)))
+    # print('Score: {}'.format(lr.score(X_test, y_test)))
     return X_test, y_test, lr
 
 def plot_means(df, col, mean, label, name, file_name):
@@ -50,7 +50,7 @@ def plot_means(df, col, mean, label, name, file_name):
     plt.xlabel('Year')
     plt.legend()
     plt.title('Mean {} in 1-year Periods'.format(name))
-    plt.savefig('mean_{}.png'.format(file_name))
+    plt.savefig('images/mean_{}.png'.format(file_name))
 
 def plot_sums(df, col, mean, label, name, file_name):
     plt.close()
@@ -67,30 +67,36 @@ def plot_sums(df, col, mean, label, name, file_name):
     plt.xlabel('Year')
     plt.legend()
     plt.title('Total {} in 1-year Periods'.format(name))
-    plt.savefig('total_{}.png'.format(file_name))
+    plt.savefig('images/total_{}.png'.format(file_name))
 
 
 if __name__ == '__main__':
     obj = s3.get_object(Bucket='climate_data', Key='40yr.csv')
     df = pd.read_csv(obj['Body'])
-    # df = pd.read_csv('965113.csv')
     df, climate_df = clean_data(df)
+    climate_df = climate_df[climate_df['date'] > '1997']
     df = clean_type(df)
     imp_df = pd.read_pickle('data/40yr_df.pkl').sort_values('date')
+    for data in [df, imp_df]:
+        data['hourly_dry_bulb_temp_f'] =\
+            (data['hourly_dry_bulb_temp_f'] - 32) * (5/9)
 
-    # depart_df = climate_df[climate_df['daily_dept_from_normal_average_temp'].notnull()]\
-    #               [['date', 'daily_dept_from_normal_average_temp']]
-    # climate_df = climate_df[climate_df['monthly_dept_from_normal_average_temp'].notnull()]
-    #
-    # for col in depart_df.columns:
-    #     depart_df[col] = pd.to_numeric(depart_df[col], errors='coerce')
-    #
-    # plot_departure(depart_df, 'date', 'daily_dept_from_normal_average_temp',\
-    #                'Daily Departure from Avg Temp over Time', '40_temp_departure_lr')
+    depart_df = climate_df[climate_df['daily_dept_from_normal_average_temp'].notnull()]\
+                [['date', 'daily_dept_from_normal_average_temp']]
+    depart_df['daily_dept_from_normal_average_temp'] = \
+        pd.to_numeric(depart_df['daily_dept_from_normal_average_temp'], errors='coerce') * (5/9)
+    depart_df.dropna(inplace=True)
+    climate_df = climate_df[climate_df['monthly_dept_from_normal_average_temp'].notnull()]
+
+    for col in depart_df.columns:
+        depart_df[col] = pd.to_numeric(depart_df[col], errors='coerce')
+
+    plot_departure(depart_df, 'date', 'daily_dept_from_normal_average_temp',\
+                   'Daily Departure from Avg Temp over Time', 'temp_departure_lr')
     # plot_departure(climate_df, 'date', 'monthly_dept_from_normal_average_temp',\
     #                'Monthly Departure from Avg Temp over Time', 'mo_temp_dep_lr')
 
-    plot_means(df, 'hourly_dry_bulb_temp_f', 50.15, 'Mean Annual Temp (F)',\
-               'Dry Bulb Temp', 'dbt')
+    # plot_means(df, 'hourly_dry_bulb_temp_f', 10.08, 'Mean Annual Temp (C)',\
+    #            'Dry Bulb Temp', 'dbt')
     # plot_sums(df, 'hourly_precip', 15.54, 'Total Precip (in)', \
     #           'precipitation', 'precip')
