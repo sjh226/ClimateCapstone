@@ -11,23 +11,23 @@ import datetime
 
 
 def gaus_p(X_train, X_test, y_train, y_test=None):
+    # scale the full data set based on training data
     scaler = preprocessing.StandardScaler()
-    # scaler.fit(X_train)
-    # X_trs = scaler.transform(X_train)
-    # X_tes = scaler.transform(X_test)
+    scaler.fit(X_train)
+    X_trs = scaler.transform(X_train)
+    X_tes = scaler.transform(X_test)
     X_trs = X_train
     X_tes = X_test
     # combine square exponential with periodic to track seaonality
     # kernel for general positive trend
-    k1 = RBF(length_scale=250)
+    k1 = RBF(length_scale=10)
     # kernel for seasonal periodicity
     # 1 year = 0.03187 before scaled
     k2 = RBF(length_scale=70) * ExpSineSquared(length_scale=10, \
                                                    periodicity=.03)
-    # kernel for noise in data
-    # k3 = RBF(length_scale=.1) + WhiteKernel(noise_level=3)
     kernel = k1 + k2
-    gpr = GaussianProcessRegressor(alpha=.5, \
+    # build and fit a GP regressor, setting alpha to deal with noise
+    gpr = GaussianProcessRegressor(alpha=2, \
                                    kernel=kernel, \
                                    normalize_y=True)
     gpr.fit(X_trs, y_train)
@@ -39,7 +39,7 @@ def gaus_p(X_train, X_test, y_train, y_test=None):
         print('Score of GPR: {}'.format(gpr.score(X_tes, y_test)))
 
     # plot training data and prediction
-    plot_pred(gpr, 'Gaussian Process', 'prediction_2007', X_trs, y_train, X_tes)
+    plot_pred(gpr, 'Gaussian Process', 'pred!', X_trs, y_train, X_tes)
 
     return gpr, y_pred
 
@@ -47,7 +47,7 @@ def plot_pred(model, model_name, fig_name, X_train, y_train, X_test):
     plt.close()
     fig, ax = plt.subplots()
     y_pred = model.predict(X_train)
-    x = np.linspace(X_train.min(), np.max(X_test), 200).reshape(-1, 1)
+    x = np.linspace(X_train.max(), np.max(X_test), 500).reshape(-1, 1)
     y, std = model.predict(x, return_std=True)
 
     # plot data
@@ -59,20 +59,17 @@ def plot_pred(model, model_name, fig_name, X_train, y_train, X_test):
     # plot confidence interval
     # x_pred = x[np.where(x>X_train.max())]
     # y_pred = y[np.where(x>X_train.max())]
-    # std = std[np.where(x>X_train.max())]
+    # std = std[np.where(x>X_train.max())[0]]
     # plt.fill(np.concatenate([x, x[::-1]]),\
     #          np.concatenate([y - 1.96 * std, (y + 1.96 * std)[::-1]]),\
-    #          alpha=.5, fc='b', ec='None', label='95% confidence interval')
-
-    # plt.fill_between(x, y - std * 1.96, y + std * 1.96,\
-    #                  alpha=0.5, color='gray')
+    #          alpha=.5, fc='gray', ec='None', label='95% confidence interval')
 
     plt.title('{} Climate Predictions'.format(model_name))
     plt.xlabel('Time')
     plt.ylabel('Temperature (C)')
     labels = np.arange(2007, 2021, 1)
-    plt.xticks(np.linspace(x.min(), x.max(), 14), labels, rotation=45)
-    plt.legend()
+    plt.xticks(np.linspace(x.min(), x.max(), 11), labels, rotation=45)
+    # plt.legend()
     plt.tight_layout()
     plt.savefig('images/{}.png'.format(fig_name))
 

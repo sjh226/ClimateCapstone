@@ -71,8 +71,10 @@ def plot_sums(df, col, mean, label, name, file_name):
 
 
 if __name__ == '__main__':
+    # get data from s3 bucket
     obj = s3.get_object(Bucket='climate_data', Key='40yr.csv')
     df = pd.read_csv(obj['Body'])
+    
     df, climate_df = clean_data(df)
     climate_df = climate_df[climate_df['date'] > '1997']
     df = clean_type(df)

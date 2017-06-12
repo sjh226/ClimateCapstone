@@ -31,6 +31,23 @@ For ease of computation I decided to focus on the DIA data since 1997. Below I p
 To model this climate data, I chose to implement a [Gaussian Process Regressor](http://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessRegressor.html#sklearn.gaussian_process.GaussianProcessRegressor). This allows me to return probabilities along with my predictions. For each predicted point, I have a confidence interval to illustrate the error in the prediction which is especially useful for timeseries predictions. Much of the variation in my model is based on modeling [CO2 Concentrations at Mauna Loa](http://scikit-learn.org/stable/auto_examples/gaussian_process/plot_gpr_co2.html).
 
 ##### Kernels
-I chose to combine a few kernels to fully account for the signal in the data. A squared exponential kernel was chosen to model the exponential
+I chose to combine a few kernels to fully account for the signal in the data. A squared exponential kernel was chosen to model the long-term upward trend of climate data while a sinusoidal kernel was used to account for the seasonality of the data.
+
+Squared Exponential:
+
+kSE(x,x′)=σ2exp(−(x−x′)22ℓ2)
+
+Sinusoidal:
 
 My best model predicting on the years 2015 and 2016 scored an R^2 value of 0.451.
+
+<hr>
+
+#### Results
+
+Was able to train and build my model...
+
+
+#### Further Exploration
+
+One frustration I encountered during this project was the model's inability to predict extremes in the seasonality. A large concern with climate change in the increase in frequency of extreme weather events. I would be interested in conducting some feature engineering to classify each observation (or per day) as an extreme event or not, and quantify exactly how far from the expectation it is. This analysis could be done on more than just temperature. I could include wind speeds and precipitation and attempt to overlay the data with known storm systems moving through the region.
