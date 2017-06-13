@@ -55,7 +55,7 @@ The climate data is extremely noisy and the visualization of my model reflected 
 | ------------- | ------------- |
 | ![prediction](images/prediction_2007.png)  | ![noise_prediction](images/prediction_noise.png)  |
 
-One major reason for choosing a Gaussian Process Recressor is that each prediction is accompanied by a distribution and standard deviation for that point. This allows one to plot a confidence interval around the predictions. Seeing as I have a very populated training set, this interval is smaller than I had expected and I would like to further investigate the accuracy of this.
+One major reason for choosing a Gaussian Process Recressor is that each prediction is accompanied by a distribution and standard deviation for that point. This allows one to plot a confidence interval around the predictions. Seeing as I have a very populated training set, this interval is smaller than I had expected and I would like to further investigate the accuracy of this. Below I limited the scale to only include predictions for 2017 and 2018 to better illustrate the error.
 
 | Noisy Prediction with a 95% Confidence Interval | Prediction When Accounting for Noise |
 | ------------- | ------------- |
