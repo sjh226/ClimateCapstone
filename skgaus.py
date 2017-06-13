@@ -43,6 +43,12 @@ def gaus_p(X_train, X_test, y_train, y_test=None):
 
     return gpr, y_pred
 
+def pred_one(model, x):
+    x_pred = np.datetime64(str(x)).reshape(-1, 1)
+    x_pred = pd.to_numeric(x_pred)/1000000000000000000
+    y_pred, std = model.predict(x, return_std=True)
+    return y_pred, std
+
 def plot_pred(model, model_name, fig_name, X_train, y_train, X_test):
     plt.close()
     fig, ax = plt.subplots()
