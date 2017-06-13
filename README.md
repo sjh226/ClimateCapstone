@@ -33,13 +33,9 @@ To model this climate data, I chose to implement a [Gaussian Process Regressor](
 ##### Kernels
 I chose to combine a few kernels to fully account for the signal in the data. A squared exponential kernel was chosen to model the long-term upward trend of climate data while a sinusoidal kernel was used to account for the seasonality of the data.
 
-Squared Exponential:
-
-![squ_exp_kern](https://wikimedia.org/api/rest_v1/media/math/render/svg/640bae18dfec0d70c6851c6a3a7457704de8986c)
-
-Sinusoidal:
-
-![periodic](https://wikimedia.org/api/rest_v1/media/math/render/svg/373634cff07052d3b080d66a35bc1806437250a1)
+| Squared Exponential | Sinusoidal |
+| --- | --- |
+| ![squ_exp_kern](https://wikimedia.org/api/rest_v1/media/math/render/svg/640bae18dfec0d70c6851c6a3a7457704de8986c) | ![periodic](https://wikimedia.org/api/rest_v1/media/math/render/svg/373634cff07052d3b080d66a35bc1806437250a1) |
 
 <hr>
 
