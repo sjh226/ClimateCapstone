@@ -22,7 +22,7 @@ For the rest of the features, I employed a k-Nearest Neighbors regression model 
 
 I initially conducted a simple hypothesis test on the data to reject the null hypothesis that the climate has not changed significantly during this time period. I split the data into two 20-year periods (1977-1997 from Buckley and 1997-2017 from DIA). When analyzing hourly dry-bulb temperatures this split resulted in a p-value of 1.72e-56, allowing me to reject the null and conclude that the temperature has in fact changed significantly.
 
-For ease of computation I decided to focus on the DIA data since 1997 for the rest of my project. Below I plotted the daily departure from the average temperature over time and ran it through a linear regression. There is an obvious increasing tend in the data and I will include this in the model along with the seasonal periodicity.
+For ease of computation I decided to focus on the DIA data since 1997 for the rest of my project. Below I plotted the daily departure from the average temperature over time and ran it through a linear regression. There is an obvious increasing trend in the data and I will include this in the model along with the seasonal periodicity.
 
 <div style="text-align:center"><img src ="images/temp_departure_lr.png" /></div>
 
