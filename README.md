@@ -24,7 +24,7 @@ I initially conducted a simple hypothesis test on the data to reject the null hy
 
 For ease of computation I decided to focus on the DIA data since 1997. Below I plotted the daily departure from the average temperature over time and ran it through a linear regression. There is an obvious increasing tend in the data and I will include this in the model along with the seasonal periodicity.
 
-![temp_dpt](images/temp_departure_lr.png)
+<div style="text-align:center"><img src ="images/temp_departure_lr.png" /></div>
 
 #### Gaussian Process Regression
 
@@ -48,6 +48,10 @@ Sinusoidal:
 Was able to train and build my model...
 
 My best model predicting on years with known values (2015 and 2016) scored an R^2 value of 0.451.
+
+| Climate Prediction to 2020  | Prediction When Accounting for Noise |
+| ------------- | ------------- |
+| ![prediction](images/prediction_2007.png)  | ![noise_prediction](images/prediction_noise.png)  |
 
 The biggest issue with time series data is your feature limitation. Using 1995-2015 as my training set and 2015-2017 as my test I can achieve an R^2 score of 0.9985, but predicting into the future, the only feature I can use is the date. It would be interesting to use my model to predict on each of my features individually and then utilize this predicted matrix to estimate future temperatures.
 
