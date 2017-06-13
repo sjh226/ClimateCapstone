@@ -28,18 +28,18 @@ For ease of computation I decided to focus on the DIA data since 1997. Below I p
 
 #### Gaussian Process Regression
 
-To model this climate data, I chose to implement a [Gaussian Process Regressor](http://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessRegressor.html#sklearn.gaussian_process.GaussianProcessRegressor). This allows me to return probabilities along with my predictions. For each predicted point, I have a confidence interval to illustrate the error in the prediction which is especially useful for timeseries predictions. Much of the variation in my model is based on modeling [CO2 Concentrations at Mauna Loa](http://scikit-learn.org/stable/auto_examples/gaussian_process/plot_gpr_co2.html).
+To model this climate data, I chose to implement a [Gaussian Process Regressor](http://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessRegressor.html#sklearn.gaussian_process.GaussianProcessRegressor). This allows me to return probabilities along with my predictions. For each predicted point, I have a confidence interval to illustrate the error in the prediction which is especially useful for time series predictions. Much of the variation in my model is based on modeling [CO2 Concentrations at Mauna Loa](http://scikit-learn.org/stable/auto_examples/gaussian_process/plot_gpr_co2.html).
 
 ##### Kernels
 I chose to combine a few kernels to fully account for the signal in the data. A squared exponential kernel was chosen to model the long-term upward trend of climate data while a sinusoidal kernel was used to account for the seasonality of the data.
 
 Squared Exponential:
 
-kSE(x,x′)=σ2exp(−(x−x′)22ℓ2)
+![squ_exp_kern](https://wikimedia.org/api/rest_v1/media/math/render/svg/640bae18dfec0d70c6851c6a3a7457704de8986c)
 
 Sinusoidal:
 
-My best model predicting on the years 2015 and 2016 scored an R^2 value of 0.451.
+![periodic](https://wikimedia.org/api/rest_v1/media/math/render/svg/373634cff07052d3b080d66a35bc1806437250a1)
 
 <hr>
 
@@ -47,6 +47,9 @@ My best model predicting on the years 2015 and 2016 scored an R^2 value of 0.451
 
 Was able to train and build my model...
 
+My best model predicting on years with known values (2015 and 2016) scored an R^2 value of 0.451.
+
+The biggest issue with time series data is your feature limitation. Using 1995-2015 as my training set and 2015-2017 as my test I can achieve an R^2 score of 0.9985, but predicting into the future, the only feature I can use is the date. It would be interesting to use my model to predict on each of my features individually and then utilize this predicted matrix to estimate future temperatures.
 
 #### Further Exploration
 
