@@ -24,6 +24,7 @@ I initially conducted a simple hypothesis test on the data to reject the null hy
 
 For ease of computation I decided to focus on the DIA data since 1997 for the rest of my project. Below I plotted the daily departure from the average temperature over time and ran it through a linear regression. There is an obvious increasing trend in the data and I will include this in the model along with the seasonal periodicity.
 
+<img src="images/temp_departure_lr.png" alt="temp departure" align="middle">
 <div style="text-align:center"><img src ="images/temp_departure_lr.png" /></div>
 
 #### Gaussian Process Regression
