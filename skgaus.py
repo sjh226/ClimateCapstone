@@ -11,11 +11,11 @@ import datetime
 
 
 def gaus_p(X_train, X_test, y_train, y_test=None):
-    # scale the full data set based on training data
-    scaler = preprocessing.StandardScaler()
-    scaler.fit(X_train)
-    X_trs = scaler.transform(X_train)
-    X_tes = scaler.transform(X_test)
+    # # scale the full data set based on training data
+    # scaler = preprocessing.StandardScaler()
+    # scaler.fit(X_train)
+    # X_trs = scaler.transform(X_train)
+    # X_tes = scaler.transform(X_test)
     X_trs = X_train
     X_tes = X_test
     # combine square exponential with periodic to track seaonality
@@ -44,10 +44,11 @@ def gaus_p(X_train, X_test, y_train, y_test=None):
     return gpr, y_pred
 
 def pred_one(model, x):
-    x_pred = np.datetime64(str(x)).reshape(-1, 1)
-    x_pred = pd.to_numeric(x_pred)/1000000000000000000
-    y_pred, std = model.predict(x, return_std=True)
-    return y_pred, std
+    date = np.array(x.split('-')).astype(int)
+    epoch_date = datetime.datetime(date[0], date[1], date[2]).strftime('%s')
+    x_pred = float(epoch_date)/1000000000
+    y_pred = model.predict(x_pred)
+    return y_pred[0][0]
 
 def plot_pred(model, model_name, fig_name, X_train, y_train, X_test):
     plt.close()
