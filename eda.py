@@ -102,4 +102,4 @@ if __name__ == '__main__':
     #            'Dry Bulb Temp', 'dbt')
     df['hourly_precip'] = df['hourly_precip'] * 2.54
     plot_sums(df, 'hourly_precip', 39.4716, 'Total Precip (cm)', \
-              'precipitation', 'precip')
+              'Precipitation', 'precip')
