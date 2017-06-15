@@ -74,7 +74,7 @@ if __name__ == '__main__':
     # get data from s3 bucket
     obj = s3.get_object(Bucket='climate_data', Key='40yr.csv')
     df = pd.read_csv(obj['Body'])
-    
+
     df, climate_df = clean_data(df)
     climate_df = climate_df[climate_df['date'] > '1997']
     df = clean_type(df)
@@ -93,12 +93,13 @@ if __name__ == '__main__':
     for col in depart_df.columns:
         depart_df[col] = pd.to_numeric(depart_df[col], errors='coerce')
 
-    plot_departure(depart_df, 'date', 'daily_dept_from_normal_average_temp',\
-                   'Daily Departure from Avg Temp over Time', 'temp_departure_lr')
+    # plot_departure(depart_df, 'date', 'daily_dept_from_normal_average_temp',\
+    #                'Daily Departure from Avg Temp over Time', 'temp_departure_lr')
     # plot_departure(climate_df, 'date', 'monthly_dept_from_normal_average_temp',\
     #                'Monthly Departure from Avg Temp over Time', 'mo_temp_dep_lr')
 
     # plot_means(df, 'hourly_dry_bulb_temp_f', 10.08, 'Mean Annual Temp (C)',\
     #            'Dry Bulb Temp', 'dbt')
-    # plot_sums(df, 'hourly_precip', 15.54, 'Total Precip (in)', \
-    #           'precipitation', 'precip')
+    df['hourly_precip'] = df['hourly_precip'] * 2.54
+    plot_sums(df, 'hourly_precip', 39.4716, 'Total Precip (cm)', \
+              'precipitation', 'precip')

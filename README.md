@@ -28,7 +28,7 @@ For ease of computation I decided to focus on the DIA data since 1997 for the re
 
 #### Gaussian Process Regression
 
-To model this climate data, I chose to implement a [Gaussian Process Regressor](http://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessRegressor.html#sklearn.gaussian_process.GaussianProcessRegressor).These models are distributions over mean and covariance functions and are ideal for observations occurring in a continuous space (such as time). This allows me to return conditional distributions along with my predictions. For each predicted point, I have a confidence interval to illustrate the error in the prediction which is especially useful for time series predictions. Much of the variation in my model is based on modeling [CO2 Concentrations at Mauna Loa](http://scikit-learn.org/stable/auto_examples/gaussian_process/plot_gpr_co2.html).
+To model this climate data, I chose to implement a [Gaussian Process Regressor](http://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessRegressor.html#sklearn.gaussian_process.GaussianProcessRegressor). These models are distributions over mean and covariance functions and are ideal for observations occurring in a continuous space (such as time). This allows me to return conditional distributions along with my predictions. For each predicted point, I have a confidence interval to illustrate the error in the prediction which is especially useful for time series predictions. The hyperparameters and kernels used in my model are greatly based on modeling [CO2 Concentrations at Mauna Loa](http://scikit-learn.org/stable/auto_examples/gaussian_process/plot_gpr_co2.html).
 
 ##### Kernels
 The covariance function in a Gaussian Process is expressed by kernel functions. I chose to combine a few kernels to fully account for the signal in the data. A squared exponential kernel was chosen to model the long-term upward trend of climate data while a sinusoidal kernel was used to account for the seasonality of the data.
@@ -51,7 +51,7 @@ The climate data is extremely noisy and the visualization of my model reflected 
 | ------------- | ------------- |
 | ![prediction](images/prediction_2007.png)  | ![noise_prediction](images/prediction_noise.png)  |
 
-One major reason for choosing a Gaussian Process Recressor is that each prediction is accompanied by a distribution and standard deviation for that point. This allows one to plot a confidence interval around the predictions. Seeing as I have a very populated training set, this interval is smaller than I had expected and I would like to further investigate the accuracy of this. Below I limited the scale to only include predictions for 2017 and 2018 to better illustrate the error.
+One major reason for choosing a Gaussian Process Recressor is that each prediction is accompanied by a distribution and standard deviation for that point. This allows one to plot a confidence interval around the predictions. Seeing as I have a very populated training set, this interval is smaller than I had expected and I would like to further investigate the accuracy of this. Below I limited the scale to only include predictions for 2017 and 2018 to better visualize the error.
 
 | Noisy Prediction with a 95% Confidence Interval | Prediction When Accounting for Noise |
 | ------------- | ------------- |
@@ -59,10 +59,14 @@ One major reason for choosing a Gaussian Process Recressor is that each predicti
 
 One can see that smoothing out the noise actually increases the error of the estimate, another reason to keep the noise in the model. One would mainly want to use the smoothed model to predict much further into the future as it displays more long-term trends.
 
-The biggest issue with time series data is your feature limitation. Using 1995-2015 as my training set and testing again on the years 2015 and 2016, I achieved an R^2 score of 0.9985, but predicting into the future, the only feature I can use is the date. It would be interesting to use my model to predict on each of my features individually and then utilize this predicted matrix to estimate future temperatures.
+The biggest issue with time series data is your feature limitation. Using 1995-2015 as my training set utilizing my entire feature matrix (28 features) and testing again on the years 2015 and 2016, I achieved an R^2 score of 0.9985, but predicting into the future, the only feature I can use is the date. It would be interesting to use my model to predict on each of my features individually and then utilize this predicted matrix to estimate future temperatures.
 
 #### Further Exploration
 
 The first change will be using only data from Buckley AFB to avoid constraining my training set to the 1995 opening date of DIA. This will allow me to look much further back into the local climate to detect larger trends and hopefully make more accurate predictions. Similar to the DIA data, this new data will have to be cleaned before analysis can take place.
 
-One frustration I encountered during this project was the model's inability to predict extremes in the seasonality. A large concern with climate change i the increase in frequency of extreme weather events. I would be interested in conducting some feature engineering to classify each observation (or per day) as an extreme event or not, and quantify exactly how far from the expectation it is. This analysis could be done on more than just temperature. I could include wind speeds and precipitation and attempt to overlay the data with known storm systems moving through the region.
+One frustration I encountered during this project was the model's inability to predict extremes in the seasonality. A large concern with climate change is the increase in frequency of extreme weather events. I would be interested in conducting some feature engineering to classify each observation (or per day) as an extreme event or not, and quantify exactly how far from the expectation it is. This analysis could be done on more than just temperature. I could include wind speeds and precipitation and attempt to overlay the data with known storm systems moving through the region.
+
+A hope for this model would be to predict more difficult features such as precipitation. Looking at yearly precipitation totals since 1996 (illustrated below) does demonstrate a significant change. The "Mean Annual Precip" is the average over the past 50 years. This increasing trend could be a result of the increasing number of extreme weather events. I plan on looking into this further, although there are dome new difficulties predicting on such an inconsistent feature such as precipitation when the majority of observations are 0.
+
+![annual_precip](images/total_precip.png) 
