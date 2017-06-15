@@ -14,9 +14,15 @@ def index():
 
 @app.route('/prediction', methods=['GET','POST'])
 def predict():
-    x = str(request.form['Date'])
-    y = pred_one(model, x)
-    return render_template('predict.html', y_pred=y, Date=x)
+    try:
+        x = str(request.form['Date'])
+        y = pred_one(model, x)
+        if len(x) == 10:
+            return render_template('predict.html', y_pred=y, Date=x)
+        else:
+            return render_template('false_predict.html')
+    except:
+        return render_template('false_predict.html')
 
 if __name__ == '__main__':
     with open('model/gpr_model.pkl', 'rb') as pickle_file:

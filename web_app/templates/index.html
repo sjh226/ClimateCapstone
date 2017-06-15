@@ -33,38 +33,70 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
 $(document).ready(function(){
-  $("a").on('click', function(event) {
-    if (this.hash !== "") {
-      event.preventDefault();
-      var hash = this.hash;
-      $('html, body').animate({
-        scrollTop: $(hash).offset().top
-      }, 800, function(){
-        window.location.hash = hash;
-      });
-    }
-  });
+    $("a").on('click', function(event) {
+        if (this.hash !== "") {
+            event.preventDefault();
+            var hash = this.hash;
+            var location = $(hash).offset().top;
+            $('html, body').animate({
+                scrollTop: location
+            }, 800, function() {
+                window.location.hash = hash;
+            });
+        }
+    });
 });
-process = function()
- {
-    window.open('about:blank', 'popup', 'width=450,height=300,resizeable=no');
-    document.prediction.setAttribute('target', 'popup');
-    document.prediction.setAttribute('onsubmit', '');
-    document.prediction.submit();
- };
+
+$(document).ready(function() {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = now.getMonth() + 1;
+    var day = now.getDate();
+    var date;
+    if (month < 10) {
+        month = "0" + month.toString();
+    }
+    if (day < 10) {
+        day = "0" + day.toString();
+    }
+    date = year + "-" + month + "-" + day
+    $('#date').val(date);
+});
+
+$(document).ready(function() {
+    var myForm = document.getElementById('form');
+
+    myForm.onsubmit = function() {
+        var w = window.open('about:blank','Popup_Window','toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=400,height=300,left = 312,top = 234');
+        this.target = 'Popup_Window';
+    };
+});
+
+
+$(document).ready(function() {
+    showBackToTop();
+    $(window).scroll(showBackToTop);
+    function showBackToTop() {
+        if ($(window).scrollTop() > 300) {
+            $('.backToTop').addClass('visible');
+        }
+        else {
+            $('.backToTop').removeClass('visible');
+        }
+    }
+    $('.backToTop').click(function() {
+        $('html, body').animate({
+            scrollTop: 0
+        }, 800);
+    });
+});
+
 </script>
-<style>
-input[type=text], select {
-    width: 40%;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-</style>
 <body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+
+    <div class="backToTop">
+        <div></div>
+    </div>
 
     <!-- Navigation -->
     <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
@@ -122,24 +154,27 @@ input[type=text], select {
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2">
                 <h2>Problem and Methods</h2>
-                <p>get from readme...</p>
+                <p>While climate change is a popular topic of discussion, public opinion is not often supported with accurate data. My goal for this project is to analyze the past 40 years of Denver climate data to see if there has been a statistically significant change in the climate and if so, to model and predict the future trend.</p>
+                <p>Modelling the climate began with a simple A/B test to confirm the legitamacy of my hypothesis that climate (temperature specifically) has changed significantly over the past 40 years.</p>
+                <p>I implemented a Gaussian Process Regressor model for this problem, which returns a distribution along with a prediction. This allows me to calculate a confidence interval along with my climate predictions. The model was trained on the past 20 years of climate data from the Denver International Airport for simplicity. I combined an Exponential Squared Kernel with a Sinusoidal as my covariance functions.</p>
+                <p>I trained both a <a href="static/img/prediction_2007.png" target="_blank">noisy</a> and <a href="static/img/prediction_noise.png" target="_blank">smooth</a> model. The below predictions are based on the noisy model at this is better able to predict extremes and fluctuations within the seasonality.
             </div>
         </div>
     </section>
 
     <!-- Predict Section -->
-    <section id="predict" class="content-section text-center">
+    <section id="predict" class="content-section--tight text-center">
         <div class="predict-section">
             <div class="container">
                 <div class="col-lg-8 col-lg-offset-2 predict-copy">
                     <h2>Climate Prediction</h2>
                     <p>Enter in a date in the format below to get a temperature forecast based on this model.</p>
-                    <form action="/prediction" method='POST' name="prediction" onsubmit="process(); return false;">
+                    <form action="/prediction" method='POST' name="prediction" id="form">
                         <div class="form-group">
-                            <input type="text" id="Date" value="2017-06-14" class="form-control"><br><br>
-                        <!-- <form action="/predict" method='POST' name="prediction" onsubmit="process(); return false;"> -->
-                            <button type="submit" class="btn btn-default">Submit</button>
-                            <!-- <input type="submit" value="Submit" class="btn btn-default btn-primary btn-lg"> -->
+                            <!-- <input type="text" id="Date" value="2017-06-14" class="form-control"><br><br>
+                            <button type="submit" class="btn btn-default">Submit</button> -->
+                            <input id="date" type="text" name="Date" placeholder="YYYY-MM-DD"><br><br>
+                            <input type="submit" value="Submit" class="btn btn-default btn-primary btn-lg">
                         </div>
                     </form>
                 </div>
@@ -168,17 +203,12 @@ input[type=text], select {
                 </ul>
             </div>
         </div>
+        <br><br><br>
+        <p>Mile High Climate Change 2017</p>
     </section>
 
-    <!-- Map Section -->
-    <!-- <div id="map"></div> -->
-
     <!-- Footer -->
-    <footer>
-        <div class="container text-center">
-            <p>Mile High Climate 2017</p>
-        </div>
-    </footer>
+
 
     <!-- jQuery -->
     <script src="../static/vendor/jquery/jquery.js"></script>
@@ -193,7 +223,7 @@ input[type=text], select {
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCRngKslUGJTlibkQ3FkfTxj3Xss1UlZDA&sensor=false"></script>
 
     <!-- Theme JavaScript -->
-    <script src="js/grayscale.min.js"></script>
+    <script src="../static/js/grayscale.min.js"></script>
 
 </body>
 
