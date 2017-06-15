@@ -157,7 +157,7 @@ $(document).ready(function() {
                 <p>While climate change is a popular topic of discussion, public opinion is not often supported with accurate data. My goal for this project is to analyze the past 40 years of Denver climate data to see if there has been a statistically significant change in the climate and if so, to model and predict the future trend.</p>
                 <p>Modelling the climate began with a simple A/B test to confirm the legitamacy of my hypothesis that climate (temperature specifically) has changed significantly over the past 40 years.</p>
                 <p>I implemented a Gaussian Process Regressor model for this problem, which returns a distribution along with a prediction. This allows me to calculate a confidence interval along with my climate predictions. The model was trained on the past 20 years of climate data from the Denver International Airport for simplicity. I combined an Exponential Squared Kernel with a Sinusoidal as my covariance functions.</p>
-                <p>I trained both a <a href="static/img/prediction_2007.png" target="_blank">noisy</a> and <a href="static/img/prediction_noise.png" target="_blank">smooth</a> model. The below predictions are based on the noisy model at this is better able to predict extremes and fluctuations within the seasonality.
+                <p>I trained both a <a href="static/img/prediction_2007.png" target="_blank">noisy</a> and <a href="static/img/prediction_noise.png" target="_blank">smooth</a> model. The below predictions are based on the noisy model as this is better able to predict extremes and fluctuations within the seasonality.
             </div>
         </div>
     </section>
