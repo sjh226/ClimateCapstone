@@ -31,7 +31,7 @@ For ease of computation I decided to focus on the DIA data since 1997 for the re
 To model this climate data, I chose to implement a [Gaussian Process Regressor](http://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessRegressor.html#sklearn.gaussian_process.GaussianProcessRegressor). These models are distributions over mean and covariance functions and are ideal for observations occurring in a continuous space (such as time). This allows me to return conditional distributions along with my predictions. For each predicted point, I have a confidence interval to illustrate the error in the prediction which is especially useful for time series predictions. The hyperparameters and kernels used in my model are greatly based on modeling [CO2 Concentrations at Mauna Loa](http://scikit-learn.org/stable/auto_examples/gaussian_process/plot_gpr_co2.html).
 
 ##### Kernels
-The covariance function in a Gaussian Process is expressed by kernel functions. I chose to combine a few kernels to fully account for the signal in the data. A squared exponential kernel was chosen to model the long-term upward trend of climate data while a sinusoidal kernel was used to account for the seasonality of the data.
+The covariance function (a measure of the similarity between points) in a Gaussian Process is expressed by kernel functions. I chose to combine a few kernels to fully account for the signal in the data. A squared exponential kernel was chosen to model the long-term upward trend of climate data while a sinusoidal kernel was used to account for the seasonality of the data.
 
 | Squared Exponential | Sinusoidal |
 | --- | --- |
