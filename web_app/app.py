@@ -26,9 +26,10 @@ def predict():
             plt.plot(years, y_preds)
             plt.title('Prediction for {} Since 2010'.format(x[5:]))
             plt.xlabel('Date')
+            plt.ticklabel_format(style='plain', axis='x')
             plt.ylabel('Temperature (C)')
             plt.tight_layout()
-            plt.savefig('static/img/pred_range.png')
+            plt.savefig('static/img/pred_{}.png'.format(x))
             return render_template('predict.html', y_pred=y, Date=x)
         else:
             return render_template('false_predict.html')
