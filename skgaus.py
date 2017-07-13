@@ -47,8 +47,8 @@ def pred_one(model, x):
     date = np.array(x.split('-')).astype(int)
     epoch_date = datetime.datetime(date[0], date[1], date[2]).strftime('%s')
     x_pred = float(epoch_date)/1000000000
-    y_pred = model.predict(x_pred)
-    return y_pred[0][0]
+    y_pred, std = model.predict(x_pred, return_std=True)
+    return y_pred[0][0], std
 
 def plot_pred(model, model_name, fig_name, X_train, y_train, X_test):
     plt.close()
