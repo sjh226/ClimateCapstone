@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+from matplotlib.ticker import FormatStrFormatter
 import pandas as pd
 import numpy as np
 import pickle
@@ -26,15 +27,16 @@ def predict():
             y_preds = np.array([pred_one(model, str(date))[0] for date in dates])
             std_preds = np.array([pred_one(model, str(date))[0] for date in std_dates])
             stds = np.array([pred_one(model, str(date))[1][0] for date in std_dates])
-            print(std_preds, stds)
             plt.close()
+            fig, ax = plt.subplots()
             plt.plot(years, y_preds, c='r')
             plt.fill(np.concatenate([std_years, std_years[::-1]]),\
                      np.concatenate([std_preds - 1.96 * stds, (std_preds + 1.96 * stds)[::-1]]),\
                      alpha=.5, fc='gray', ec='None', label='95% confidence interval')
             plt.title('Prediction for {} Since 2000'.format(x[5:]))
             plt.xlabel('Date')
-            plt.ticklabel_format(style='plain', axis='x')
+            majorFormatter = FormatStrFormatter('%d')
+            ax.xaxis.set_major_formatter(majorFormatter)
             plt.ylabel('Temperature (C)')
             if int(x[:4]) > 2017:
                 plt.legend()
